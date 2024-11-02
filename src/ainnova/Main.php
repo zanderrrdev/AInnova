@@ -3,8 +3,11 @@
 namespace ainnova;
 
 use ainnova\utils\Logger;
+use ainnova\utils\Client;
+use ainnova\scheduler\RequestTask;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
+use Closure;
 
 class Main extends PluginBase {
 
@@ -22,6 +25,9 @@ class Main extends PluginBase {
 
 	public function onEnable(): void {
 		self::$instance = $this;
+		
+		$this->api = new Client();
+
 		Logger::info('AInnova plugin loaded successfully');
 	}
 
@@ -31,7 +37,11 @@ class Main extends PluginBase {
 	 * @param string $token
 	 */
 	public function setToken(string $token): void {
-		$this->api->setToken($token);
+		if ($this->api !== null) {
+			$this->api->setToken($token);
+		} else {
+			Logger::error("API client not initialized");
+		}
 	}
 
 	/**
@@ -40,7 +50,11 @@ class Main extends PluginBase {
 	 * @param string $model
 	 */
 	public function setModel(string $model): void {
-		$this->api->setModel($model);
+		if ($this->api !== null) {
+			$this->api->setModel($model);
+		} else {
+			Logger::error("API client not initialized");
+		}
 	}
 
 	/**
@@ -50,6 +64,6 @@ class Main extends PluginBase {
 	 * @param Closure $callback
 	 */
 	public function sendMessage(string $message, Closure $callback): void {
-		$this->getScheduler()->scheduleAsyncTask(new RequestTask($message, $this->api, $callback));
+		$this->getServer()->getScheduler()->scheduleAsyncTask(new RequestTask($message, $this->api, $callback));
 	}
 }
