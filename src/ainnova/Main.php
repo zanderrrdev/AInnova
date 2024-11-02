@@ -42,4 +42,14 @@ class Main extends PluginBase {
 	public function setModel(string $model): void {
 		$this->api->setModel($model);
 	}
+
+	/**
+	 * Send a message to the AI
+	 *
+	 * @param string $message
+	 * @param Closure $callback
+	 */
+	public function sendMessage(string $message, Closure $callback): void {
+		$this->getScheduler()->scheduleAsyncTask(new RequestTask($message, $this->api, $callback));
+	}
 }
