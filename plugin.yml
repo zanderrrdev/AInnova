@@ -1,0 +1,6 @@
+name: AInnova
+version: 1.0.0
+main: ainnova\Main
+api: 3.0.0
+author: Zanderrr (vk.com/zanderr_r)
+description: AInnova API
