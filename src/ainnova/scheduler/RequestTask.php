@@ -33,19 +33,27 @@ class RequestTask extends AsyncTask {
 			'message' => $this->message
 		];
 
-		$options = [
-			'http' => [
-				'header' => 'Content-Type: application/json\r\n' .
-					'Authorization: Bearer ' . $this->api->getToken() . '\r\n',
-				'method' => 'POST',
-				'content' => json_encode($data)
-			]
-		];
+		$ch = curl_init($this->api->getUrl());
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			'Authorization: Bearer ' . $this->api->getToken()
+		]);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
-		$context = stream_context_create($options);
-		$result = @file_get_contents($this->api->getUrl(), false, $context);
+		$result = curl_exec($ch);
+		$error = curl_error($ch);
+		curl_close($ch);
 
-		$response = $result !== false ? json_decode($result, true) : ['error' => 'Failed to get response from API'];
+		if ($result === false) {
+			$response = ['error' => 'Error: ' . $error];
+		} else {
+			$response = json_decode($result, true);
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				$response = ['error' => 'Failed to decode JSON response'];
+			}
+		}
 		$response['time'] = $this->time;
 
 		if (isset($response['message']) && is_string($response['message'])) {
