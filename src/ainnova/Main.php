@@ -54,6 +54,20 @@ class Client
 	}
 
 	/**
+	 * Set the API URL
+	 *
+	 * @param string $url
+	 */
+	public function setApiUrl(string $url): void {
+		if ($this->api !== null) {
+			$this->api->setUrl($url);
+			Logger::info("API URL set to {$url}");
+		} else {
+			Logger::error("API client not initialized");
+		}
+	}
+
+	/**
 	 * Send a message to the AI
 	 *
 	 * @param string $message
