@@ -79,20 +79,22 @@ class Main extends PluginBase {
 	 */
 	public function applyRules(string $message, Closure $callback): void {
 		$this->sendMessage($message, function(Server $server, array $response) use ($callback) {
-			if (isset($response['rules'])) {
-				foreach ($response['rules'] as $data) {
-					if (isset($data['rule'], $data['message'], $data['time'])) {
-						$rule = $data['rule'];
-						$message = $data['message'];
-						$time = $data['time'];
-						
-						$callback($rule, $message, $time);
-					} else {
-						Logger::error("Failed to retrieve expected values from AI response");
-					}
-				}
-			} else {
+			if (!isset($response['rules'])) {
 				Logger::error("Failed to retrieve rules from AI response");
+				return;
+			}
+
+			foreach ($response['rules'] as $data) {
+				if (!isset($data['rule'])) {
+					Logger::error("Failed to retrieve expected values from AI response");
+					continue;
+				}
+
+				$rule = $data['rule'];
+				$message = $response['message'] ?? 'No message provided';
+				$time = $response['time'] ?? time();
+
+				$callback($rule, $message, $time);
 			}
 		});
 	}
