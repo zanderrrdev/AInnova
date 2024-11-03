@@ -5,6 +5,7 @@ namespace ainnova\utils;
 class Client {
 	private string $token;
 	private string $model;
+	private string $url;
 
 	/**
 	 * Client constructor
@@ -12,6 +13,7 @@ class Client {
 	public function __construct() {
 		$this->token = 'your token';
 		$this->model = 'ainnova model';
+		$this->url = 'https://example/api/chat';
 	}
 
 	/**
@@ -30,6 +32,16 @@ class Client {
 	 */
 	public function setModel(string $model): void {
 		$this->model = $model;
+	}
+
+	/**
+	 * Set the API URL
+	 *
+	 * @param string $url
+	 */
+	public function setUrl(string $url): void
+	{
+		$this->url = $url;
 	}
 
 	/**
@@ -56,6 +68,6 @@ class Client {
 	 * @return string
 	 */
 	public function getUrl(): string {
-		return 'https://api.ai-nnova.ru/api/chat';
+		return $this->url;
 	}
 }

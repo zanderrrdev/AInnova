@@ -9,26 +9,22 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use Closure;
 
-class Main extends PluginBase {
-
-	private static ?Main $instance = null;
-	private ?Client $api = null;
+class Client
+{
+	private string $token;
+	private string $model;
+	private string $url;
 
 	/**
 	 * Get Main class
 	 *
 	 * @return Main|null
 	 */
-	public static function getInstance(): ?Main {
-		return self::$instance;
-	}
-
-	public function onEnable(): void {
-		self::$instance = $this;
-		
-		$this->api = new Client();
-
-		Logger::info('AInnova plugin loaded successfully');
+	public function __construct()
+	{
+		$this->token = 'your token';
+		$this->model = 'ainnova model';
+		$this->url = 'https://example/api/chat';
 	}
 
 	/**
@@ -65,5 +61,16 @@ class Main extends PluginBase {
 	 */
 	public function sendMessage(string $message, Closure $callback): void {
 		$this->getServer()->getScheduler()->scheduleAsyncTask(new RequestTask($message, $this->api, $callback));
+	}
+}
+
+	/**
+	 * Get the API URL for sending messages
+	 *
+	 * @return string
+	 */
+	public function getUrl(): string
+	{
+		return $this->url;
 	}
 }
