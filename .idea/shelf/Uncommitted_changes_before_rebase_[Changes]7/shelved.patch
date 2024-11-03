@@ -1,0 +1,176 @@
+Index: src/ainnova/Main.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace ainnova;\r\n\r\nuse ainnova\\utils\\Logger;\r\nuse ainnova\\utils\\Client;\r\nuse ainnova\\scheduler\\RequestTask;\r\nuse pocketmine\\plugin\\PluginBase;\r\nuse pocketmine\\Server;\r\nuse Closure;\r\n\r\nclass Client\r\n{\r\n\tprivate string $token;\r\n\tprivate string $model;\r\n\tprivate string $url;\r\n\r\n\t/**\r\n\t * Get Main class\r\n\t *\r\n\t * @return Main|null\r\n\t */\r\n\tpublic function __construct()\r\n\t{\r\n\t\t$this->token = 'your token';\r\n\t\t$this->model = 'ainnova model';\r\n\t\t$this->url = 'https://example/api/chat';\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API token\r\n\t *\r\n\t * @param string $token\r\n\t */\r\n\tpublic function setToken(string $token): void {\r\n\t\tif ($this->api !== null) {\r\n\t\t\t$this->api->setToken($token);\r\n\t\t} else {\r\n\t\t\tLogger::error(\"API client not initialized\");\r\n\t\t}\r\n\t}\r\n\r\n\t/**\r\n\t * Set the AI model\r\n\t *\r\n\t * @param string $model\r\n\t */\r\n\tpublic function setModel(string $model): void {\r\n\t\tif ($this->api !== null) {\r\n\t\t\t$this->api->setModel($model);\r\n\t\t} else {\r\n\t\t\tLogger::error(\"API client not initialized\");\r\n\t\t}\r\n\t}\r\n\r\n\t/**\r\n\t * Send a message to the AI\r\n\t *\r\n\t * @param string $message\r\n\t * @param Closure $callback\r\n\t */\r\n\tpublic function sendMessage(string $message, Closure $callback): void {\r\n\t\t$this->getServer()->getScheduler()->scheduleAsyncTask(new RequestTask($message, $this->api, $callback));\r\n\t}\r\n}\r\n\r\n\t/**\r\n\t * Get the API URL for sending messages\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getUrl(): string\r\n\t{\r\n\t\treturn $this->url;\r\n\t}\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/ainnova/Main.php b/src/ainnova/Main.php
+--- a/src/ainnova/Main.php	(revision 0d21af280731924ccbc9276142ca5c4a05f0d0f2)
++++ b/src/ainnova/Main.php	(date 1730610848939)
+@@ -9,22 +9,26 @@
+ use pocketmine\Server;
+ use Closure;
+ 
+-class Client
+-{
+-	private string $token;
+-	private string $model;
+-	private string $url;
++class Main extends PluginBase {
++
++	private static ?Main $instance = null;
++	private ?Client $api = null;
+ 
+ 	/**
+ 	 * Get Main class
+ 	 *
+ 	 * @return Main|null
+ 	 */
+-	public function __construct()
+-	{
+-		$this->token = 'your token';
+-		$this->model = 'ainnova model';
+-		$this->url = 'https://example/api/chat';
++	public static function getInstance(): ?Main {
++		return self::$instance;
++	}
++
++	public function onEnable(): void {
++		self::$instance = $this;
++		
++		$this->api = new Client();
++
++		Logger::info('AInnova plugin loaded successfully');
+ 	}
+ 
+ 	/**
+@@ -63,14 +67,3 @@
+ 		$this->getServer()->getScheduler()->scheduleAsyncTask(new RequestTask($message, $this->api, $callback));
+ 	}
+ }
+-
+-	/**
+-	 * Get the API URL for sending messages
+-	 *
+-	 * @return string
+-	 */
+-	public function getUrl(): string
+-	{
+-		return $this->url;
+-	}
+-}
+\ No newline at end of file
+Index: src/ainnova/utils/Client.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace ainnova\\utils;\r\n\r\nclass Client {\r\n\tprivate string $token;\r\n\tprivate string $model;\r\n\tprivate string $url;\r\n\r\n\t/**\r\n\t * Client constructor\r\n\t */\r\n\tpublic function __construct() {\r\n\t\t$this->token = 'your token';\r\n\t\t$this->model = 'ainnova model';\r\n\t\t$this->url = 'https://example/api/chat';\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API token\r\n\t *\r\n\t * @param string $token\r\n\t */\r\n\tpublic function setToken(string $token): void {\r\n\t\t$this->token = $token;\r\n\t}\r\n\r\n\t/**\r\n\t * Set the AI model\r\n\t *\r\n\t * @param string $model\r\n\t */\r\n\tpublic function setModel(string $model): void {\r\n\t\t$this->model = $model;\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API URL\r\n\t *\r\n\t * @param string $url\r\n\t */\r\n\tpublic function setUrl(string $url): void\r\n\t{\r\n\t\t$this->url = $url;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the API token\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getToken(): string {\r\n\t\treturn $this->token;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the AI model\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getModel(): string {\r\n\t\treturn $this->model;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the API URL for sending messages\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getUrl(): string {\r\n\t\treturn $this->url;\r\n\t}\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/ainnova/utils/Client.php b/src/ainnova/utils/Client.php
+--- a/src/ainnova/utils/Client.php	(revision 0d21af280731924ccbc9276142ca5c4a05f0d0f2)
++++ b/src/ainnova/utils/Client.php	(date 1730610848946)
+@@ -5,7 +5,6 @@
+ class Client {
+ 	private string $token;
+ 	private string $model;
+-	private string $url;
+ 
+ 	/**
+ 	 * Client constructor
+@@ -13,7 +12,6 @@
+ 	public function __construct() {
+ 		$this->token = 'your token';
+ 		$this->model = 'ainnova model';
+-		$this->url = 'https://example/api/chat';
+ 	}
+ 
+ 	/**
+@@ -34,16 +32,6 @@
+ 		$this->model = $model;
+ 	}
+ 
+-	/**
+-	 * Set the API URL
+-	 *
+-	 * @param string $url
+-	 */
+-	public function setUrl(string $url): void
+-	{
+-		$this->url = $url;
+-	}
+-
+ 	/**
+ 	 * Get the API token
+ 	 *
+@@ -68,6 +56,6 @@
+ 	 * @return string
+ 	 */
+ 	public function getUrl(): string {
+-		return $this->url;
++		return 'https://api.ai-nnova.ru/api/chat';
+ 	}
+ }
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"2e391f26-91d7-4f6d-8f18-a454692ca2d8\" name=\"Changes\" comment=\"Adding the setApiUrl method\">\r\n      <change beforePath=\"$PROJECT_DIR$/src/ainnova/Main.php\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/ainnova/Main.php\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/ainnova/utils/Client.php\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/ainnova/utils/Client.php\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ComposerSettings\">\r\n    <execution />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n    <option name=\"ROOT_SYNC\" value=\"SYNC\" />\r\n  </component>\r\n  <component name=\"GitRewordedCommitMessages\">\r\n    <option name=\"onto\" value=\"4349691f70b4b098a8e3b7bb6debd70210d3aa1e\" />\r\n  </component>\r\n  <component name=\"PhpWorkspaceProjectConfiguration\" interpreter_name=\"PHP\" />\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"QODANA_PROBLEMS_VIEW_TAB\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 5\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2oK0Yn2kNRDN6Xaur00Lynv7IxM\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"autoscrollToSource\" value=\"true\" />\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"ASKED_ADD_EXTERNAL_FILES\": \"true\",\r\n    \"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"git-widget-placeholder\": \"main\",\r\n    \"last_opened_file_path\": \"C:/Users/muham/OneDrive/Рабочий стол/LiteCore/plugins/AInnova\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PS-241.17011.119\" />\r\n        <option value=\"bundled-php-predefined-ba97393d7c68-48a1a656d44e-com.jetbrains.php.sharedIndexes-PS-241.17011.119\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"2e391f26-91d7-4f6d-8f18-a454692ca2d8\" name=\"Changes\" comment=\"\" />\r\n      <created>1730603009898</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1730603009898</updated>\r\n      <workItem from=\"1730603137632\" duration=\"4390000\" />\r\n      <workItem from=\"1730607621141\" duration=\"1652000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"Adding the setApiUrl method\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1730605807099</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1730605807099</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"Adding the setApiUrl method\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1730606897870</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1730606897870</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"Adding the setApiUrl method\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1730607898919</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1730607898919</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"Adding the setApiUrl method\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1730608203359</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1730608203359</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"5\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"OPEN_GENERIC_TABS\">\r\n      <map>\r\n        <entry key=\"38a8d75b-7f26-44d4-b8cc-8f940a30f793\" value=\"TOOL_WINDOW\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"38a8d75b-7f26-44d4-b8cc-8f940a30f793\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"main\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"main\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\r\n    <MESSAGE value=\"squash! Adding the setApiUrl method\" />\r\n    <MESSAGE value=\"Adding the setApiUrl method\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 0d21af280731924ccbc9276142ca5c4a05f0d0f2)
++++ b/.idea/workspace.xml	(date 1730610830676)
+@@ -5,8 +5,10 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="2e391f26-91d7-4f6d-8f18-a454692ca2d8" name="Changes" comment="Adding the setApiUrl method">
+-      <change beforePath="$PROJECT_DIR$/src/ainnova/Main.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/ainnova/Main.php" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/ainnova/utils/Client.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/ainnova/utils/Client.php" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_1.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_2.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_3.xml" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -39,22 +41,22 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "ASKED_ADD_EXTERNAL_FILES": "true",
+-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+-    "git-widget-placeholder": "main",
+-    "last_opened_file_path": "C:/Users/muham/OneDrive/Рабочий стол/LiteCore/plugins/AInnova",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
++    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
++    &quot;last_opened_file_path&quot;: &quot;C:/Users/muham/OneDrive/Рабочий стол/LiteCore/plugins/AInnova&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
