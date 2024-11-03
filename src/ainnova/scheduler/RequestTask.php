@@ -42,6 +42,9 @@ class RequestTask extends AsyncTask {
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
 		$result = curl_exec($ch);
 		$error = curl_error($ch);
 		curl_close($ch);
