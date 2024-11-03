@@ -1,0 +1,69 @@
+Index: src/ainnova/utils/Client.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace ainnova\\utils;\r\n\r\nclass Client {\r\n\tprivate string $token;\r\n\tprivate string $model;\r\n\tprivate string $url;\r\n\r\n\t/**\r\n\t * Client constructor\r\n\t */\r\n\tpublic function __construct() {\r\n\t\t$this->token = 'your token';\r\n\t\t$this->model = 'ainnova model';\r\n\t\t$this->url = 'https://example/api/chat';\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API token\r\n\t *\r\n\t * @param string $token\r\n\t */\r\n\tpublic function setToken(string $token): void {\r\n\t\t$this->token = $token;\r\n\t}\r\n\r\n\t/**\r\n\t * Set the AI model\r\n\t *\r\n\t * @param string $model\r\n\t */\r\n\tpublic function setModel(string $model): void {\r\n\t\t$this->model = $model;\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API URL\r\n\t *\r\n\t * @param string $url\r\n\t */\r\n\tpublic function setUrl(string $url): void {\r\n\t\t$this->url = $url;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the API token\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getToken(): string {\r\n\t\treturn $this->token;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the AI model\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getModel(): string {\r\n\t\treturn $this->model;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the API URL for sending messages\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getUrl(): string {\r\n\t\treturn $this->url;\r\n\t}\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/ainnova/utils/Client.php b/src/ainnova/utils/Client.php
+--- a/src/ainnova/utils/Client.php	
++++ b/src/ainnova/utils/Client.php	
+@@ -69,4 +69,4 @@
+ 	public function getUrl(): string {
+ 		return $this->url;
+ 	}
+-}
++}
+\ No newline at end of file
+Index: src/ainnova/scheduler/RequestTask.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace ainnova\\scheduler;\r\n\r\nuse pocketmine\\scheduler\\AsyncTask;\r\nuse pocketmine\\Server;\r\nuse Closure;\r\nuse ainnova\\utils\\Client;\r\n\r\nclass RequestTask extends AsyncTask {\r\n\tprivate string $message;\r\n\tprivate Client $api;\r\n\tprivate Closure $callback;\r\n\tprivate int $time;\r\n\r\n\t/**\r\n\t * RequestTask constructor\r\n\t *\r\n\t * @param string $message\r\n\t * @param Client $api\r\n\t * @param Closure $callback\r\n\t */\r\n\tpublic function __construct(string $message, Client $api, Closure $callback) {\r\n\t\t$this->message = $message;\r\n\t\t$this->api = $api;\r\n\t\t$this->callback = $callback;\r\n\t\t$this->time = time();\r\n\t}\r\n\r\n\tpublic function onRun(): void {\r\n\t\t$data = [\r\n\t\t\t'model' => $this->api->getModel(),\r\n\t\t\t'message' => $this->message\r\n\t\t];\r\n\r\n\t\t$options = [\r\n\t\t\t'http' => [\r\n\t\t\t\t'header' => 'Content-Type: application/json\\r\\n' .\r\n\t\t\t\t\t'Authorization: Bearer ' . $this->api->getToken() . '\\r\\n',\r\n\t\t\t\t'method' => 'POST',\r\n\t\t\t\t'content' => json_encode($data)\r\n\t\t\t]\r\n\t\t];\r\n\r\n\t\t$context = stream_context_create($options);\r\n\t\t$result = @file_get_contents($this->api->getUrl(), false, $context);\r\n\r\n\t\t$response = $result !== false ? json_decode($result, true) : ['error' => 'Failed to get response from API'];\r\n\t\t$response['time'] = $this->time;\r\n\r\n\t\tif (isset($response['message']) && is_string($response['message'])) {\r\n\t\t\t$response['message'] = preg_replace('/[^\\p{L}\\p{N}\\p{P}\\s]/u', '', $response['message']);\r\n\t\t}\r\n\r\n\t\t$this->setResult($response);\r\n\t}\r\n\r\n\t/**\r\n\t * Called when the task is completed\r\n\t *\r\n\t * @param Server $server\r\n\t */\r\n\tpublic function onCompletion(Server $server): void {\r\n\t\t($this->callback)($server, $this->getResult());\r\n\t}\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/ainnova/scheduler/RequestTask.php b/src/ainnova/scheduler/RequestTask.php
+--- a/src/ainnova/scheduler/RequestTask.php	
++++ b/src/ainnova/scheduler/RequestTask.php	
+@@ -33,19 +33,30 @@
+ 			'message' => $this->message
+ 		];
+ 
+-		$options = [
+-			'http' => [
+-				'header' => 'Content-Type: application/json\r\n' .
+-					'Authorization: Bearer ' . $this->api->getToken() . '\r\n',
+-				'method' => 'POST',
+-				'content' => json_encode($data)
+-			]
+-		];
++		$ch = curl_init($this->api->getUrl());
++		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
++		curl_setopt($ch, CURLOPT_HTTPHEADER, [
++			'Content-Type: application/json',
++			'Authorization: Bearer ' . $this->api->getToken()
++		]);
++		curl_setopt($ch, CURLOPT_POST, true);
++		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+ 
+-		$context = stream_context_create($options);
+-		$result = @file_get_contents($this->api->getUrl(), false, $context);
++		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
++		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+ 
+-		$response = $result !== false ? json_decode($result, true) : ['error' => 'Failed to get response from API'];
++		$result = curl_exec($ch);
++		$error = curl_error($ch);
++		curl_close($ch);
++
++		if ($result === false) {
++			$response = ['error' => 'Error: ' . $error];
++		} else {
++			$response = json_decode($result, true);
++			if (json_last_error() !== JSON_ERROR_NONE) {
++				$response = ['error' => 'Failed to decode JSON response'];
++			}
++		}
+ 		$response['time'] = $this->time;
+ 
+ 		if (isset($response['message']) && is_string($response['message'])) {

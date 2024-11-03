@@ -1,0 +1,75 @@
+Index: src/ainnova/Main.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace ainnova;\r\n\r\nuse ainnova\\utils\\Logger;\r\nuse pocketmine\\plugin\\PluginBase;\r\nuse pocketmine\\Server;\r\n\r\nclass Main extends PluginBase {\r\n\r\n\tprivate static ?Main $instance = null;\r\n\tprivate ?Client $api = null;\r\n\r\n\t/**\r\n\t * Get Main class\r\n\t *\r\n\t * @return Main|null\r\n\t */\r\n\tpublic static function getInstance(): ?Main {\r\n\t\treturn self::$instance;\r\n\t}\r\n\r\n\tpublic function onEnable(): void {\r\n\t\tself::$instance = $this;\r\n\t\tLogger::info('AInnova plugin loaded successfully');\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API token\r\n\t *\r\n\t * @param string $token\r\n\t */\r\n\tpublic function setToken(string $token): void {\r\n\t\t$this->api->setToken($token);\r\n\t}\r\n\r\n\t/**\r\n\t * Set the AI model\r\n\t *\r\n\t * @param string $model\r\n\t */\r\n\tpublic function setModel(string $model): void {\r\n\t\t$this->api->setModel($model);\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API URL\r\n\t *\r\n\t * @param string $url\r\n\t */\r\n\tpublic function setApiUrl(string $url): void {\r\n\t\tif ($this->api !== null) {\r\n\t\t\t$this->api->setUrl($url);\r\n\t\t\tLogger::info(\"API URL set to {$url}\");\r\n\t\t} else {\r\n\t\t\tLogger::error(\"API client not initialized\");\r\n\t\t}\r\n\t}\r\n\r\n\t/**\r\n\t * Send a message to the AI\r\n\t *\r\n\t * @param string $message\r\n\t * @param Closure $callback\r\n\t */\r\n\tpublic function sendMessage(string $message, Closure $callback): void {\r\n\t\t$this->getServer()->getScheduler()->scheduleAsyncTask(new RequestTask($message, $this->api, $callback));\r\n\t}\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/ainnova/Main.php b/src/ainnova/Main.php
+--- a/src/ainnova/Main.php	(revision edeafcb496f00beecd743f88438d49f085939efa)
++++ b/src/ainnova/Main.php	(date 1730608156260)
+@@ -3,8 +3,11 @@
+ namespace ainnova;
+ 
+ use ainnova\utils\Logger;
++use ainnova\utils\Client;
++use ainnova\scheduler\RequestTask;
+ use pocketmine\plugin\PluginBase;
+ use pocketmine\Server;
++use Closure;
+ 
+ class Main extends PluginBase {
+ 
+@@ -22,6 +25,9 @@
+ 
+ 	public function onEnable(): void {
+ 		self::$instance = $this;
++		
++		$this->api = new Client();
++
+ 		Logger::info('AInnova plugin loaded successfully');
+ 	}
+ 
+@@ -31,7 +37,11 @@
+ 	 * @param string $token
+ 	 */
+ 	public function setToken(string $token): void {
+-		$this->api->setToken($token);
++		if ($this->api !== null) {
++			$this->api->setToken($token);
++		} else {
++			Logger::error("API client not initialized");
++		}
+ 	}
+ 
+ 	/**
+@@ -40,7 +50,11 @@
+ 	 * @param string $model
+ 	 */
+ 	public function setModel(string $model): void {
+-		$this->api->setModel($model);
++		if ($this->api !== null) {
++			$this->api->setModel($model);
++		} else {
++			Logger::error("API client not initialized");
++		}
+ 	}
+ 
+ 	/**
+Index: src/ainnova/utils/Client.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace ainnova\\utils;\r\n\r\nclass Client {\r\n\tprivate string $token;\r\n\tprivate string $model;\r\n\tprivate string $url;\r\n\r\n\t/**\r\n\t * Client constructor\r\n\t */\r\n\tpublic function __construct() {\r\n\t\t$this->token = 'your token';\r\n\t\t$this->model = 'ainnova model';\r\n\t\t$this->url = 'https://example/api/chat';\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API token\r\n\t *\r\n\t * @param string $token\r\n\t */\r\n\tpublic function setToken(string $token): void {\r\n\t\t$this->token = $token;\r\n\t}\r\n\r\n\t/**\r\n\t * Set the AI model\r\n\t *\r\n\t * @param string $model\r\n\t */\r\n\tpublic function setModel(string $model): void {\r\n\t\t$this->model = $model;\r\n\t}\r\n\r\n\t/**\r\n\t * Set the API URL\r\n\t *\r\n\t * @param string $url\r\n\t */\r\n\tpublic function setUrl(string $url): void {\r\n\t\t$this->url = $url;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the API token\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getToken(): string {\r\n\t\treturn $this->token;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the AI model\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getModel(): string {\r\n\t\treturn $this->model;\r\n\t}\r\n\r\n\t/**\r\n\t * Get the API URL for sending messages\r\n\t *\r\n\t * @return string\r\n\t */\r\n\tpublic function getUrl(): string {\r\n\t\treturn $this->url;\r\n\t}\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/ainnova/utils/Client.php b/src/ainnova/utils/Client.php
+--- a/src/ainnova/utils/Client.php	(revision edeafcb496f00beecd743f88438d49f085939efa)
++++ b/src/ainnova/utils/Client.php	(date 1730608128369)
+@@ -69,4 +69,4 @@
+ 	public function getUrl(): string {
+ 		return $this->url;
+ 	}
+-}
++}
+\ No newline at end of file
